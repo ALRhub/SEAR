@@ -1,0 +1,155 @@
+# @package _global_
+#
+
+#defaults:
+#  - override /hydra/launcher: submitit_slurm
+#  - _self_
+
+exp_name: ${env_name}
+
+seed: 0
+
+use_jit: true
+
+
+env_name: metaworld-push-v3
+# env_name: Pendulum-v1
+# env_name: dm_control/humanoid-run
+#  env_name: SlitEnv-v2
+#  eval_max_steps: 100
+
+alg:
+  random_chunks: true # TOP-ERL style random chunk lengths, enables rollout len decay
+  random_init_chunk: false # during rollouts, only execute a random prefix of the first chunk
+  temporl: false # Use Q-values to select optimal action chunk prefix length
+  scale_chunks: false # emulate random chunk lengths by scaling
+  crossq_style: false
+  tau: .005
+  utd: 1
+  tot_time_steps: 1_000_000
+  policy_delay: 1 
+  log_freq: 100   # how many time to log during training
+  critic_chunksize: 1
+  actor_chunksize: 1
+  chunky_critic: true
+  ent_coef: auto
+  ent_coef_init: 1
+  target_ent: auto
+  apply_next_state_ent_bonus: true
+  marginalize_next_action_logprob: false
+  use_next_action_logprob: false
+  marginalize_actor_logprob: true
+  next_ep_critic_update: true
+  gamma: 0.99
+  batch_size: 256
+  offline_steps: 0  # Number of gradient steps to perform on offline data before starting online rollouts
+  skip_rl: false  # Skip RL training (pure BC mode). Requires train_bc=true.
+  train_bc: false # also train BC in addition to RL
+  buffer_size: 1_000_000
+  single_action_v: false
+  rlpd: false
+
+actor:
+  full_cov: false
+  logprob_type: marginalized # joint
+  activation: 'relu'
+  hs: [512, 512]
+  log_std_min: -5
+  log_std_max: 2
+  bias: 0
+  bias_kind: diag
+  autoregressive: false
+  kind: "mlp" # "diffusion", "autoregressive"
+  only_fit_last_nstep: true
+  simbav2: true
+  weight_norm: false
+  n_embed: 128
+  n_heads: 8
+  n_layer: 2
+  dropout_rate: 0.0
+  norm:
+    norm: "none"  # "bn", "rbn", "ln", "none"
+    bn_momentum: 0.99
+    bn_warmup: 100000
+  update_collate_fn: mean
+  trpl: false
+  mean_bound: 5
+  cov_bound: 1
+  bc_coef: 0
+  target_quartile: null
+
+critic:
+  only_fit_last_nstep: false
+  activation: 'relu'
+  n_critics: 2
+  hs: [256, 256]
+
+  simbav2: false
+  simba_blocks: 2
+  norm_qk : false
+  weight_norm: false  # Enable weight normalization on critic Dense layers
+  norm:
+    norm: "ln"  # "bn", "rbn", "ln", "none"
+    bn_momentum: 0.99
+    bn_warmup: 100000
+  update_ensemble_size: 2
+  kind: "transformer"
+  distributional: true
+  use_cramer_von_mises: false
+  n_embed: 512
+  n_heads: 16
+  n_layer: 2
+  dist:
+    n_atoms: 101
+    v_min: 0
+    v_max: 1000
+  last_chunk_bias: 0.0
+  last_chunk_bias_decay: 10000
+  collate_fn: min
+
+optimizer:
+  actor_lr: 3.0e-4
+  critic_lr: 3.0e-4
+  b1: 0.9
+  critic_use_adamw: true
+
+rollout:
+  buffer_len: 1000
+  ratio_tolerance: 0.0
+  annealing_eps: 0
+  bias: 0.0
+
+noise:
+  kind: "none"  # "none", "additive_gauss"
+  action: 0.1
+  obs: 0.1
+
+
+wandb:
+  entity: user
+  project: chunky_rl
+  group: dev # CrossQ_mmmt${optimizer.bn_momentum}_${alg.tot_time_steps}
+  #job_type: ${exp_name}_${alg.actor_chunksize}-${alg.critic_chunksize}-lr${optimizer.lr}-105b5878 # _lr${optimizer.lr}_aHS${actor.hs}_UTD${alg.utd}
+  job_type: ${exp_name}_OG_SAC_a6bb314 # _lr${optimizer.lr}_aHS${actor.hs}_UTD${alg.utd}
+  activate: True
+
+
+model_save_path: null # ${wandb.job_type}_s_${seed}
+n_saved_models: 1
+
+#
+#
+#hydra:
+#  mode: MULTIRUN  # needed for launcher to be used
+#  launcher:
+#    # launcher/cluster specific options
+#    timeout_min: 1440  # 24 hours
+#    gres: gpu:1  # we want all GPUs in a node
+#    mem_per_cpu: 7500  # in MB (* 8 cores in use = 120GB)
+#    additional_parameters:
+#      cpus_per_task: 4
+##    nodes: 1
+#    # exclude: node[4,5,6,7]  # e.g. do not allocate on these nodes because the RTX2080 doesn't have enough VRAM
+#  job_logging:
+#    root:
+#      handlers: [file]

@@ -1,0 +1,26 @@
+[project]
+name = "cqn-as"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "tensordict==0.6.0",
+    "packaging==24.2",
+    "termcolor==2.4.0",
+    "imageio==2.34.1",
+    "imageio_ffmpeg==0.5.1",
+    "hydra-core==1.1.0",
+    "hydra-submitit-launcher==1.1.5",
+    "opencv-python-headless==4.10.0.82",
+    "numpy==1.26.4",
+    "tensorboard==2.17.0",
+    "dm_env==1.6",
+    "dm_control==1.0.19",
+    "gymnasium>=1.1",
+    "wandb==0.17.4",
+    "mujoco==3.1.5",
+    "metaworld @ git+https://github.com/Farama-Foundation/Metaworld.git@master",
+    "bigym @ git+ssh://git@github.com/chernyadev/bigym.git@72d305437d5a13800ea633479a1060619fc14e54",
+]

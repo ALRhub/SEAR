@@ -1,0 +1,55 @@
+[project]
+name = "qc"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dacite>=1.9.2",
+    "distrax>=0.1.5",
+    "dm-control==1.0.30",
+    "duckdb>=1.3.2",
+    "fastparquet>=2024.11.0",
+    "flax>=0.10.3",
+    "gymnasium[box2d,mujoco]>=1.1",
+    "hydra-core>=1.3.2",
+    "hypothesis>=6.131.21",
+    "jaxlib>=0.1.67",
+    "jaxtyping>=0.2.38",
+    "jsons>=1.6.3",
+    "metaworld",
+    "ml-collections>=1.1.0",
+    "moviepy>=2.2.1",
+    "mujoco==3.3.2",
+    "numba>=0.62.1",
+    "numpy<2",
+    "numpyro==0.15.3",
+    "ogbench>=1.1.5",
+    "omegaconf>=2.3.0",
+    "pdbpp>=0.11.6",
+    "pyside6>=6.9.0",
+    "pytest>=8.3.5",
+    "pyyaml>=6.0.2",
+    "rlax==0.1.6",
+    "rliable>=1.2.0",
+    "shimmy>=2.0.0",
+    "stable-baselines3[extra]>=2.5.0",
+    "swig>=4.3.0",
+    "tensorboard>=2.18.0",
+    "tensorflow-probability<0.24",
+    "tikzplotlib>=0.10.1",
+    "torch>=2.6.0",
+    "typeguard<3",
+    "typer>=0.15.3",
+    "wandb>=0.19.6",
+    "ml_collections",
+    "jax[cuda12]>=0.5.3",
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+reportInvalidTypeForm= false
+
+[tool.ruff]
+lint.ignore = ["E402","F401","F722"]

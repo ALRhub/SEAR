@@ -1,0 +1,158 @@
+[project]
+name = "jax-diff-rl"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dacite>=1.9.2",
+    "distrax>=0.1.5",
+    "dm-control==1.0.30",
+    "duckdb>=1.3.2",
+    "fastparquet>=2024.11.0",
+    "flax>=0.10.3",
+    "gymnasium[box2d,mujoco]>=1.1",
+    "hydra-core>=1.3.2",
+    "hypothesis>=6.131.21",
+    "jax[cuda12]>=0.2.12",
+    "jaxlib>=0.1.67",
+    "jaxtyping>=0.2.38",
+    "jsons>=1.6.3",
+    "mani-skill",
+    "metaworld",
+    "mujoco==3.3.2",
+    "numba>=0.62.1",
+    "numpy<2",
+    "numpyro==0.15.3",
+    "ogbench>=1.1.5",
+    "omegaconf>=2.3.0",
+    "pdbpp>=0.11.6",
+    "pyside6>=6.9.0",
+    "pytest>=8.3.5",
+    "pyyaml>=6.0.2",
+    "rlax==0.1.6",
+    "rliable>=1.2.0",
+    "shimmy>=2.0.0",
+    "stable-baselines3[extra]>=2.5.0",
+    "swig>=4.3.0",
+    "tensorboard>=2.18.0",
+    "tensorflow-probability<0.24",
+    "tikzplotlib>=0.10.1",
+    "torch>=2.6.0",
+    "typeguard<3",
+    "typer>=0.15.3",
+    "wandb>=0.19.6",
+]
+
+[project.scripts]
+chunkyrl = "sac.run:main"
+
+[tool.setuptools.packages.find]
+include = ["sac*", "envs*", "DIME*", "common*", "diffusion*", "scale_rl*", "utils*", "configs*"]
+exclude = ["logs*", "wandb*", "images*", "outputs*", "eval_logs*", "saved_models*"]
+
+[tool.uv]
+package = true
+
+[tool.uv.sources]
+mani-skill = { git = "ssh://git@github.com/haosulab/ManiSkill.git", rev = "gym-1.1-support" }
+
+[tool.black]
+extend-exclude = "scale_rl/"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+include = [
+    "sac",
+    "run.py",
+    "Exp*.py",
+]
+exclude = [
+    "DIME"
+]
+reportInvalidTypeForm= false
+
+[tool.ruff.lint]
+ignore = ["E402", "F722"]
+exclude = [
+    "build/*",
+    "common/buffers.py",
+    "common/distributions.py",
+    "common/dmc_gym.py",
+    "common/__init__.py",
+    "common/off_policy_algorithm.py",
+    "common/policies.py",
+    "common/type_aliases.py",
+    "config-3.py",
+    "config.py",
+    "debug.py",
+    "diffusion/actors.py",
+    "diffusion/common/diffusion_models.py",
+    "diffusion/common/init_diffusion_model.py",
+    "diffusion/common/__init__.py",
+    "diffusion/common/learning_rate_scheduler.py",
+    "diffusion/common/models/__init__.py",
+    "diffusion/common/models/pisgrad_net.py",
+    "diffusion/common/scheduler.py",
+    "diffusion/common/utils.py",
+    "diffusion/diffusion_policy.py",
+    "diffusion/d_sac.py",
+    "diffusion/gend_sac.py",
+    "diffusion/__init__.py",
+    "diffusion/noise_schedules.py",
+    "diffusion/od/dis.py",
+    "diffusion/od/gbs.py",
+    "diffusion/od/__init__.py",
+    "diffusion/od/od_integrators.py",
+    "diffusion/od/od_sampling.py",
+    "diffusion/policies.py",
+    "diffusion/sac.py",
+    "diffusion/ud/dis_ud.py",
+    "diffusion/ud/hbs.py",
+    "diffusion/ud/__init__.py",
+    "diffusion/ud/ud_integrators.py",
+    "diffusion/ud/ud_sampling.py",
+    "envs/GoalReaching.py",
+    "envs/__init__.py",
+    "envs/Slit_Env_v2.py",
+    "notes.py",
+    "playground.py",
+    "playground_sac.py",
+    "plyground_v_funcs.py",
+    "plyground_v_funcs_sac.py",
+    "policies_og.py",
+    "run_diffp.py",
+    "run_gendsac.py",
+    "update.py",
+    "utils.py",
+    "scale_rl/*",
+    "DIME/diffusion/dime.py",
+    "DIME/diffusion/common/utils.py",
+    "DIME/diffusion/common/init_diffusion_model.py",
+    "DIME/diffusion/common/learning_rate_scheduler.py",
+    "DIME/diffusion/common/models/pisgrad_net.py",
+    "DIME/diffusion/common/models/__init__.py",
+    "DIME/diffusion/common/__init__.py",
+    "DIME/diffusion/common/diffusion_models.py",
+    "DIME/diffusion/common/scheduler.py",
+    "DIME/diffusion/diffusion_policy.py",
+    "DIME/diffusion/od/dis.py",
+    "DIME/diffusion/od/od_integrators.py",
+    "DIME/diffusion/od/od_sampling.py",
+    "DIME/diffusion/od/__init__.py",
+    "DIME/diffusion/__init__.py",
+    "DIME/common/policies.py",
+    "DIME/common/buffers.py",
+    "DIME/common/type_aliases.py",
+    "DIME/common/off_policy_algorithm.py",
+    "DIME/common/__init__.py",
+    "DIME/common/distributions.py",
+    "DIME/models/utils.py",
+    "DIME/models/critic.py",
+    "DIME/models/__init__.py",
+    "DIME/models/actor_critic_evaluation_callback.py",
+    "DIME/run_dime.py",
+    "DIME/__init__.py",
+]
+
