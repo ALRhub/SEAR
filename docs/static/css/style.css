@@ -187,8 +187,8 @@ footer { padding: 30px 0 50px; text-align: center; font-size: 14px; color: var(-
 .hscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 @media (max-width: 860px) {
-  #critic { min-width: 720px; }
   .hint { margin-left: 0; }
+  .demo { padding: 12px 8px 10px; }
   figure.side-fig { grid-template-columns: 1fr; }
   .affils span, .authors span { white-space: normal; display: inline-block; }
   .cov-grid, .figs, .ideas { grid-template-columns: 1fr; }
