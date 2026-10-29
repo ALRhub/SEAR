@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEAR: Sample Efficient Action Chunking RL</title>
+  <meta name="description" content="SEAR is a sample-efficient off-policy algorithm for online reinforcement learning with action chunks, using a causal transformer critic with multi-horizon targets and random replanning.">
+  <meta property="og:title" content="SEAR: Sample Efficient Action Chunking Reinforcement Learning">
+  <meta property="og:description" content="Causal transformer critic with multi-horizon targets + random replanning: >80% IQM success on Metaworld-Hard.">
+  <meta property="og:image" content="static/img/fig4a_metaworld.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="static/js/svg.js"></script>
+  <script defer src="static/js/critic.js"></script>
+  <script defer src="static/js/coverage.js"></script>
+</head>
+<body>
+
+<header class="hero wrap">
+  <div class="venue">NeurIPS 2026</div>
+  <h1><span class="acr">SEAR</span>: Sample Efficient Action Chunking Reinforcement Learning</h1>
+  <p class="authors">
+    <span>C F Maximilian Nagy<sup>1,2</sup></span>
+    <span>Onur Celik<sup>1</sup></span>
+    <span>Emiliyan Gospodinov<sup>1</sup></span>
+    <span>Florian Seligmann<sup>1</sup></span>
+    <span>Weiran Liao<sup>1</sup></span>
+    <span>Aryan Kaushik<sup>1</sup></span>
+    <span>Gerhard Neumann<sup>1,2</sup></span>
+  </p>
+  <p class="affils">
+    <span><sup>1</sup>Autonomous Learning Robots, Karlsruhe Institute of Technology</span>
+    <span><sup>2</sup>FZI Forschungszentrum Informatik, Karlsruhe</span>
+  </p>
+  <div class="buttons">
+    <a class="btn" href="https://arxiv.org/abs/2603.01891">
+      <svg viewBox="0 0 24 24"><path d="M4 2h11l5 5v15H4zM14 3.5V8h4.5z"/></svg>arXiv
+    </a>
+    <a class="btn" href="https://openreview.net/forum?id=bTE6KrCVKn#discussion">
+      <svg viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-5 4V4a1 1 0 0 1 1-1z"/></svg>OpenReview
+    </a>
+    <a class="btn" href="static/SEAR.pdf">
+      <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3zM5 18h14v2H5z"/></svg>PDF
+    </a>
+    <a class="btn" href="https://github.com/ALRhub/SEAR">
+      <svg viewBox="0 0 24 24"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>Code
+    </a>
+    <a class="btn" href="#bibtex">
+      <svg viewBox="0 0 24 24"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>BibTeX
+    </a>
+  </div>
+</header>
+
+<main>
+
+<section id="abstract">
+  <div class="wrap narrow">
+    <h2>Abstract</h2>
+    <p class="abstract">
+      Action chunking improves exploration and accelerates value propagation in long-horizon reinforcement
+      learning, but naively applying off-policy methods to the temporally extended action space at reduced
+      decision frequency offsets these gains, leading to poor sample efficiency. Existing online action
+      chunking methods address these issues through computationally expensive critic-only approaches or by
+      relying on offline data. We introduce <b>SEAR</b>, a sample-efficient off-policy algorithm that enables
+      online reinforcement learning with action chunks by addressing both challenges. To handle
+      high-dimensional action sequences, SEAR employs a <b>causal transformer critic</b> trained with
+      <b>multi-horizon targets</b> that provide a training signal for every prefix of an action chunk,
+      effectively increasing the useful gradients per sample. To restore decision frequency, SEAR operates
+      with a <b>receding horizon</b> and <b>random replanning</b>, ensuring uniform state coverage while
+      combining the fast value propagation of large chunks with the reactivity of small ones. SEAR outperforms
+      state-of-the-art online reinforcement learning methods including SimbaV2 on challenging Metaworld
+      manipulation tasks. Beyond online RL, applying SEAR to the offline-to-online method QC improves its
+      performance on the demanding OGBench cube-triple tasks.
+    </p>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <h2>Results</h2>
+    <p class="narrow lead" style="text-align:center">
+      Metaworld-Hard: the 20 hardest Metaworld ML1 tasks (by SimbaV2 performance), with success measured at the last
+      step of an episode. IQM with 95% bootstrap CIs.
+    </p>
+
+    <h3>Comparison to the state of the art</h3>
+    <div class="figs">
+      <figure class="card">
+        <img src="static/img/fig4a_metaworld.png" alt="IQM success on Metaworld-Hard vs. samples for SEAR and baselines" loading="lazy">
+        <figcaption><b>Online RL, Metaworld-Hard.</b> SEAR reaches over 80% IQM success. SimbaV2 and CQN-AS, the state of the art without and with action chunking, plateau around 60%. A naive chunked SimbaV2, SAC and T-SAC stay around 20%.</figcaption>
+      </figure>
+      <figure class="card">
+        <img src="static/img/fig4b_ogbench.png" alt="IQM success on OGBench cube-triple-play for SEAR-QC and QC" loading="lazy">
+        <figcaption><b>Offline-to-online, OGBench cube-triple-play (1M).</b> Adding SEAR's multi-horizon targets and random replanning to QC, with everything else unchanged, beats QC, most clearly early in online training.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <h2>Method</h2>
+    <div class="narrow">
+      <p class="lead">
+        An action-chunking policy $\pi(a_{t:t+N}\mid s_t)$ predicts $N$ actions at once and runs them open-loop.
+        That gives structured exploration and unbiased $N$-step returns, but brings two problems: the critic must
+        evaluate an action space that is $N$ times larger, and the actor is only queried in every $N$-th state.
+        SEAR addresses each problem with one component.
+      </p>
+      <div class="ideas">
+        <div class="idea">
+          <div class="tag">Critic</div>
+          <h4>Causal transformer + multi-horizon targets</h4>
+          <p>One Q-value and one Bellman target for <i>every prefix</i> of a chunk, so the number of training targets grows with the chunk size.</p>
+        </div>
+        <div class="idea">
+          <div class="tag">Actor</div>
+          <h4>Random replanning + receding horizon</h4>
+          <p>During training, execute a random prefix of each chunk. The actor then sees every state, so short receding horizons at evaluation stay in-distribution.</p>
+        </div>
+      </div>
+
+      <h3>Action-chunked maximum-entropy RL</h3>
+      <p>
+        SEAR builds on the maximum-entropy framework. The entropy bonus is computed and discounted per action, so the
+        optimal policy does not depend on the chunk size, and $N=1$ recovers standard SAC-style MaxEnt RL.
+        The action-chunk-conditioned Q-function scores a whole chunk executed open-loop and following $\pi$ afterwards:
+      </p>
+      <div class="eq">$$Q^\pi(s_t, a_{t:t+N}) = r_t + \mathbb{E}_p\Big[\sum_{n=1}^{N-1}\gamma^n r_{t+n} + \gamma^N V^\pi(s_{t+N})\Big].$$</div>
+    </div>
+
+    <h3 class="narrow">1 · The causal transformer critic</h3>
+    <div class="narrow">
+      <p>
+        Summing a chunk's $N$ rewards into one target throws away information. Instead, SEAR computes a target for
+        every prefix length $k = 1,\dots,N$:
+      </p>
+      <div class="eq">$$G^{(k)}(s_t,a_{t:t+k}) = \underbrace{\sum_{i=0}^{k-1}\gamma^i r_{t+i}}_{k\text{-step return}} + \gamma^k\,\hat Q_{\bar\phi}\big(s_{t+k},\, a'\big),\qquad a'\sim\pi_\theta(\cdot\mid s_{t+k}).$$</div>
+      <p>
+        $G^{(k)}$ only depends on the first $k$ actions, which is the same structure a causal transformer has.
+        Each action token attends only to the state and earlier actions, so one forward pass gives all $N$ prefix
+        Q-values. The causal mask also ensures that $Q^{(k)}$ only uses the $k$ actions that enter its $k$-step target
+        $G^{(k)}$. Later actions of the chunk do not affect that return, so they are masked out. The critic regresses each
+        Q-value onto its own target:
+      </p>
+      <div class="eq">$$J(\phi) = \frac{1}{2N}\sum_{k=1}^{N}\Big(Q_\phi^{(k)}(s_t,a_{t:t+k}) - G^{(k)}(s_t,a_{t:t+k})\Big)^2.$$</div>
+    </div>
+
+    <div class="demo">
+      <div class="hscroll"><svg id="critic" viewBox="0 0 1040 460" role="img" aria-label="Animated diagram of the causal transformer critic update"></svg></div>
+      <div class="caption-live" id="critic-caption"></div>
+      <div class="controls">
+        <button id="critic-prev" title="Previous step">◀</button>
+        <button id="critic-play">▶ Play</button>
+        <button id="critic-next" title="Next step">▶▶</button>
+        <label class="toggle"><input type="radio" name="critic-target" value="mh" checked> Multi Horizon Critic Targets</label>
+        <label class="toggle"><input type="radio" name="critic-target" value="naive"> Naive N-Step Target</label>
+      </div>
+      <p class="mh-note" id="critic-mh-text"></p>
+    </div>
+
+    <p class="narrow segue">
+      On Metaworld-Hard, both the intra-chunk targets and the transformer backbone matter. Only their combination clearly
+      outperforms non-chunking baselines such as SimbaV2 (about 60%):
+    </p>
+      <figure class="card side-fig">
+        <img src="static/img/fig1b_critic_ablation.png" alt="Critic ablations on Metaworld-Hard" loading="lazy">
+        <figcaption><b>Critic design.</b> Multi-horizon targets are the most important component: fitting only $Q^{(N)}$ drops to about 30%. Bootstrapping with a single-step policy (“No Action Chunking”) and replacing the transformer with an MLP also lower success, though the MLP variant stays competitive.</figcaption>
+      </figure>
+
+    <h3 class="narrow">2 · Random replanning restores state coverage</h3>
+    <div class="narrow">
+      <p>
+        With a fixed chunk size, the policy is only evaluated in every $N$-th state of a trajectory. When initial states
+        are narrowly distributed, as in many manipulation benchmarks, large parts of the state space are visited
+        but never used to query the actor. A receding horizon at test time (replanning after $h &lt; N$ steps) then queries the actor
+        exactly in those <i>out-of-distribution</i> states, and that cancels most of the gain from the higher decision frequency.
+        SEAR's fix is simple: during data collection, execute only a <b>random prefix</b> of each chunk before replanning.
+      </p>
+    </div>
+
+    <div class="demo">
+      <div class="cov-grid" id="coverage"></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--nochunk)"></i><i class="sw" style="background:var(--chunk)"></i><i class="sw" style="background:var(--sear)"></i> actor queried (replanning state)</span>
+        <span><i class="sw" style="background:#fff"></i> visited open-loop only</span>
+      </div>
+      <div class="controls">
+        <button id="cov-play">▶ Play</button>
+        <button id="cov-ff">+100 episodes</button>
+        <button id="cov-reset">Reset</button>
+        <label>chunk size N <input type="range" id="cov-n" min="2" max="6" step="1"><span class="val" id="cov-n-val"></span></label>
+      </div>
+    </div>
+    <p class="narrow" style="font-size:15.5px;color:var(--ink-soft)">
+      Each row is one training episode from the same initial state. The bars show how often the actor was queried at each time step,
+      accumulated over all episodes. Uniform chunking leaves the states between replanning points uncovered. Random replanning spreads
+      the queries over every step, so any receding horizon $h$ lands in well-trained states.
+    </p>
+
+    <p class="narrow segue">
+      In practice, random replanning determines how much SEAR benefits from a receding horizon:
+    </p>
+      <figure class="card side-fig">
+        <img src="static/img/fig2d_random_replanning.png" alt="Effect of random replanning across receding horizons" loading="lazy">
+        <figcaption><b>Random replanning.</b> SEAR-10 with and without random replanning, evaluated across receding horizons. With random replanning, SEAR fully exploits the higher decision frequency of a shorter receding horizon. Without it, the actor is queried in the coverage gaps shown above, and most of that gain is lost.</figcaption>
+      </figure>
+  </div>
+</section>
+
+<section id="ablations">
+  <div class="wrap">
+    <h2>Ablations</h2>
+    <h3>Chunk sizes and receding horizons</h3>
+    <div class="figs">
+      <figure class="card">
+        <img src="static/img/fig3a_chunksizes.png" alt="Sample efficiency for SEAR with chunk sizes 1, 5, 10, 20" loading="lazy">
+        <figcaption><b>Chunk size.</b> Every SEAR variant that uses action chunking beats SimbaV2. SEAR-10 balances value propagation and decision frequency best. SEAR-1 (no chunking) is slightly below SimbaV2, so the transformer alone does not explain the gains.</figcaption>
+      </figure>
+      <figure class="card">
+        <img src="static/img/fig3b_receding.png" alt="IQM success as a function of receding horizon for different chunk sizes" loading="lazy">
+        <figcaption><b>Receding horizon.</b> Training on long chunks and deploying with a shorter receding horizon beats training on short chunks. The best horizon is 3–5 steps for every chunk size. SEAR trained with chunks and deployed at $h=1$ even beats SEAR-1 and SimbaV2, which makes it a good way to obtain a single-step policy.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="bibtex">
+  <div class="wrap narrow">
+    <h2>BibTeX</h2>
+<pre class="bib"><button class="copy" onclick="navigator.clipboard.writeText(this.parentElement.querySelector('code').innerText);this.textContent='Copied'">Copy</button><code>@inproceedings{nagy2026sear,
+  title     = {{SEAR}: Sample Efficient Action Chunking Reinforcement Learning},
+  author    = {Nagy, C F Maximilian and Celik, Onur and Gospodinov, Emiliyan and
+               Seligmann, Florian and Liao, Weiran and Kaushik, Aryan and Neumann, Gerhard},
+  booktitle = {The Fortieth Annual Conference on Neural Information Processing Systems},
+  year      = {2026},
+  url       = {https://openreview.net/forum?id=bTE6KrCVKn}
+}</code></pre>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Autonomous Learning Robots · Karlsruhe Institute of Technology &amp; FZI
+  </div>
+</footer>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.renderMathInElement) {
+      renderMathInElement(document.body, {
+        delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }],
+        ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "svg"],
+        throwOnError: false,
+      });
+    }
+  });
+</script>
+</body>
+</html>
